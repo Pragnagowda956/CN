@@ -1,0 +1,70 @@
+#include <stdio.h> 
+#include <string.h> 
+#define MAX_DATA 100
+#define MAX_GEN 20 
+char data[MAX_DATA];
+char check_value[MAX_GEN]; 
+char gen_poly[MAX_GEN];
+int data_length;
+int i, j;
+#define N strlen(gen_poly)
+/* XOR operation */ 
+void XOR() {
+for (j= 1;j< N; j++)
+{
+check_value[j]=
+((check_value[j] == gen_poly[j])? '0': '1');
+}
+}
+/* CRC calculation */ 
+void crc() {
+for (i = 0; i < N; i++) 
+check_value[i] = data[i];
+do{
+if (check_value[0] == '1') 
+XOR();
+for (j = 0; j < N - 1; j++)
+check_value[j] = check_value[j + 1];
+check_value[j]= data[i++];
+} while (i <= data_length+N- 1);
+}
+/* Receiver */ 
+void receiver() {
+printf("\nEnter the received data: "); 
+scanf("%s", data);
+printf("\n-------------------");
+printf("\nData received: %s", data); 
+crc();
+for (i= 0; (i<N- 1) && (check_value[i] != '1'); i++); 
+if (i < N - 1)
+printf("\nError detected\n"); 
+else
+printf("\nNo error detected\n");}
+int main() 
+{
+printf("\nEnter data to be transmitted: "); 
+scanf("%s", data);
+printf("\nEnter the Generating polynomial: "); 
+scanf("%s", gen_poly);
+data_length= strlen(data);
+/* AppendN-1 zeros */
+for (i= data_length;i < data_length+N- 1; i++) 
+data[i] = '0';
+data[data_length+N- 1] = '\0';
+printf("\n--------------- ");
+printf("\nData padded withn-1 zeros: %s", data); 
+printf("\n----------------- ");
+/* Calculate CRC */ 
+crc();
+check_value[N- 1]= '\0';
+printf("\nCRC or Check value is: %s", check_value);
+/* Append CRC to original data */
+for (i= data_length;i < data_length+N- 1; i++) 
+data[i] = check_value[i - data_length];
+data[data_length+N- 1] = '\0';
+printf("\n---------------- ");
+printf("\nFinal data to be sent: %s", data); 
+printf("\n--------------- ");
+/*Receiver */ 
+receiver(); 
+return 0;
