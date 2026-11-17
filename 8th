@@ -1,0 +1,60 @@
+UDP Server
+import java.io.*; 
+import java.net.*;
+public class UDPServer {
+public static void main(String[] args) { 
+DatagramSocket skt = null;
+try {
+System.out.println("server is started"); 
+skt = new DatagramSocket(6788); 
+byte[] buffer = new byte[1000];
+while (true) {
+DatagramPacket request = new DatagramPacket(buffer, buffer.length); 
+skt.receive(request);
+String[] message = (new String(request.getData())).split(" ");
+byte[] sendMsg = (message[1].toUpperCase() + " from server to client").getBytes();
+DatagramPacket reply = new DatagramPacket(sendMsg, sendMsg.length, 
+request.getAddress(), request.getPort());
+skt.send(reply);
+}
+} catch (Exception ex) { 
+System.out.println(ex.getMessage());
+} finally {
+if (skt != null && !skt.isClosed()) {
+skt.close();
+}
+}
+}
+}
+
+
+UDP Client
+import java.io.*; 
+import java.net.*;
+public class UDPClient {
+public static void main(String[] args) { 
+DatagramSocket skt = null;
+try {
+skt = new DatagramSocket();
+// Send message to server 
+String msg = "atme college"; 
+byte[] b = msg.getBytes();
+InetAddress host = InetAddress.getByName("127.0.0.1"); 
+int serverPort = 6788;
+DatagramPacket request = new DatagramPacket(b, b.length, host, serverPort);
+skt.send(request);
+// Prepare buffer to receive response 
+byte[] buffer = new byte[1024];
+DatagramPacket reply = new DatagramPacket(buffer, buffer.length); 
+skt.receive(reply);
+// Print the received message
+System.out.println("client received: " + new String(reply.getData(), 0, reply.getLength()));
+} catch (Exception ex) { 
+ex.printStackTrace();
+} finally {
+if (skt != null && !skt.isClosed()) { 
+skt.close();
+}
+}
+}
+}
