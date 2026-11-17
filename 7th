@@ -1,0 +1,86 @@
+TCP Client side: 
+import java.net.*; 
+import java.io.*; 
+public class TCPClient
+{
+public static void main(String args[])
+{
+try
+{
+Socket sock = new Socket("127.0.0.1", 4000); 
+System.out.println("Connected to server"); 
+BufferedReader keyRead =
+new BufferedReader(new InputStreamReader(System.in)); 
+System.out.print("Enter the filename: ");
+String fname = keyRead.readLine(); 
+PrintWriter pwrite =
+new PrintWriter(sock.getOutputStream(), true);
+// Send filename to server 
+pwrite.println(fname); 
+BufferedReader socketRead =
+new BufferedReader(
+new InputStreamReader(sock.getInputStream())); 
+System.out.println("\nFile contents:");
+String str;
+while ((str = socketRead.readLine()) != null)
+{
+System.out.println(str);
+}
+socketRead.close(); 
+pwrite.close(); 
+keyRead.close(); 
+sock.close();
+}
+catch (ConnectException e)
+{
+System.out.println("Error: Server is not running."); 
+System.out.println("Start TCPServer first, then run TCPClient.");
+}
+catch (Exception e)
+{
+System.out.println("Error: " + e);
+}
+}
+}
+
+
+
+TCP Server side: 
+import java.net.*; 
+import java.io.*;
+public class TCPServer
+{
+public static void main(String args[]) throws Exception
+{
+ServerSocket sersock = new ServerSocket(4000); 
+System.out.println("Server ready for Connection"); 
+Socket sock = sersock.accept();
+System.out.println("Connection is Successful and waiting for file"); 
+InputStream istream = sock.getInputStream();
+BufferedReader fileRead =
+new BufferedReader(new InputStreamReader(istream)); 
+String fname = fileRead.readLine();
+OutputStream ostream = sock.getOutputStream(); 
+PrintWriter pwrite = new PrintWriter(ostream, true); 
+File file = new File(fname);
+if (file.exists())
+{
+BufferedReader contentRead =
+new BufferedReader(new FileReader(file)); 
+String str;
+while ((str = contentRead.readLine()) != null)
+{
+pwrite.println(str);
+}
+contentRead.close();
+}
+else
+{
+pwrite.println("File not found: " + fname);
+}
+sock.close(); 
+sersock.close(); 
+pwrite.close(); 
+fileRead.close();
+}
+}
